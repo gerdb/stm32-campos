@@ -69,6 +69,7 @@
 /* Exported variables -------------------------------------------------------*/
 extern uint8_t pixels[108][864]; // Pixel field
 extern uint8_t frame_flag; // is set, if a new frame was received
+extern int window_x, window_y;
 
 /* Exported types -----------------------------------------------------------*/
 typedef enum {

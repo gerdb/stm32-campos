@@ -64,6 +64,8 @@
 
 uint8_t pixels[108][864]; // Pixel field
 uint8_t frame_flag = 0; // is set, if a new frame was received
+int window_x, window_y;
+int new_window_x, new_window_y;
 
 DCMI_HandleTypeDef hdcmi_eval;
 
@@ -130,7 +132,10 @@ uint8_t BSP_CAMERA_Init() {
 		// ID is corrent
 		ret = CAMERA_OK;
 	}
-
+	window_x = 0;
+	window_y = 0;
+	new_window_x = 0;
+	new_window_y = 0;
 	return ret;
 }
 
@@ -356,6 +361,21 @@ __weak void BSP_CAMERA_VsyncEventCallback(void) {
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
 	//BSP_CAMERA_FrameEventCallback();
 	frame_flag = 1;
+
+	// Take the values from the last capture
+	window_x = new_window_x;
+	window_y = new_window_y;
+
+	// Calculate the window position for the next capture
+	new_window_x ++;
+	if (new_window_x >= 3) {
+		new_window_x = 0;
+		new_window_y++;
+		if (new_window_y >= 18 ) {
+			new_window_y = 0;
+		}
+	}
+	HAL_DCMI_ConfigCROP(hdcmi, new_window_x*864, new_window_y*108, 864 - 1, 108 - 1);
 }
 
 /**
