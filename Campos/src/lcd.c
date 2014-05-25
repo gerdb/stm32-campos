@@ -58,6 +58,7 @@ void LCD_Init(void) {
 			pixels[y][x] = LCD_BLACK;
 		}
 	}
+	LCD_Clr();
 
 	// Draw the info window on the right side
 	ili9325_SetDisplayWindow(240, 0, 80, 240);
@@ -147,6 +148,8 @@ void LCD_MiniWindow(void) {
 		}
 	}
 }
+
+
 /**
  * @brief Draw the content of an pixel array to the LCD
  * Draw one logical pixel of the array as 4 (2x2) pixels
@@ -154,13 +157,88 @@ void LCD_MiniWindow(void) {
  *
  * @param pixelp pointer to the pixel array
  */
+//void LCD_Image(uint8_t* pixelp) {
+//
+//	int x, y;
+//	int v;
+//
+//	volatile int cursor_x = 120 - 0;//position_x;
+//	volatile int cursor_y = 2 * 0;//position_y;
+//
+//	// Define the region to draw
+//	ili9325_SetDisplayWindow(0, 0, 240, 240);
+//	ili9325_SetCursor(0, 0);
+//
+//	// Prepare to write to the LCD ram
+//	LCD_IO_WriteReg(LCD_REG_34);
+//	LCD_CD_DATA();
+//	for (y = 0; y < 240; y++) {
+//		if (y == cursor_y) {
+//
+//			// Draw the vertical cursor line
+//			for (x = 240; x != 0; x--) {
+//
+//				// 2 pixels width
+//				LCD_IO_WRITE_1xDATA(LCD_RED);
+//				LCD_IO_WRITE_1xDATA(LCD_RED);
+//			}
+//			pixelp += 120;
+//			y++;
+//
+//		} else {
+//
+//			for (x = 120; x != 0; x--) {
+//				// Draw the camera image
+//				v = color_table[*pixelp];
+//				// Draw the horizontal cursor line
+//				if (x == cursor_x)
+//					v = LCD_RED;
+//				// 2 pixels width
+//				LCD_IO_WRITE_1xDATA(v);
+//				LCD_IO_WRITE_1xDATA(v);
+//				pixelp++;
+//			}
+//		}
+//		// 2 pixels height
+//		if (y % 2 == 0) {
+//			pixelp -= 120;
+//		}
+//	}
+//}
 void LCD_Image(uint8_t* pixelp) {
 
 	int x, y;
 	int v;
 
-	volatile int cursor_x = 120 - 0;//position_x;
-	volatile int cursor_y = 2 * 0;//position_y;
+	// Define the region to draw
+	ili9325_SetDisplayWindow(0, 0, 216, 27);
+	ili9325_SetCursor(0, 0);
+
+	// Prepare to write to the LCD ram
+	LCD_IO_WriteReg(LCD_REG_34);
+	LCD_CD_DATA();
+	for (y = 0; y < 27; y++) {
+
+		for (x = 216; x != 0; x--) {
+			// Draw the camera image
+			v = color_table[*pixelp];
+			// 2 pixels width
+			LCD_IO_WRITE_1xDATA(v);
+			pixelp+=4;
+		}
+		pixelp += 864*3;
+
+	}
+}
+
+/**
+ * @brief Clear the whole 240x240 pixel video area and fill it with black pixels
+ *
+ * @param  None
+ * @retval None
+ */
+void LCD_Clr(void) {
+	int x, y;
 
 	// Define the region to draw
 	ili9325_SetDisplayWindow(0, 0, 240, 240);
@@ -170,35 +248,9 @@ void LCD_Image(uint8_t* pixelp) {
 	LCD_IO_WriteReg(LCD_REG_34);
 	LCD_CD_DATA();
 	for (y = 0; y < 240; y++) {
-		if (y == cursor_y) {
-
-			// Draw the vertical cursor line
-			for (x = 240; x != 0; x--) {
-
-				// 2 pixels width
-				LCD_IO_WRITE_1xDATA(LCD_RED);
-				LCD_IO_WRITE_1xDATA(LCD_RED);
-			}
-			pixelp += 120;
-			y++;
-
-		} else {
-
-			for (x = 120; x != 0; x--) {
-				// Draw the camera image
-				v = color_table[*pixelp];
-				// Draw the horizontal cursor line
-				if (x == cursor_x)
-					v = LCD_RED;
-				// 2 pixels width
-				LCD_IO_WRITE_1xDATA(v);
-				LCD_IO_WRITE_1xDATA(v);
-				pixelp++;
-			}
+		for (x = 240; x != 0; x--) {
+			LCD_IO_WRITE_1xDATA(LCD_BLACK);
 		}
-		// 2 pixels height
-		if (y % 2 == 0) {
-			pixelp -= 120;
-		}
+
 	}
 }

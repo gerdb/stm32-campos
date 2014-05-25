@@ -19,9 +19,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- */
-
-/**
  * This file is also based on the following file from the STM32Cube project
  *
  ******************************************************************************
@@ -70,7 +67,7 @@
 #include "stm32f4_discovery.h"
 
 /* Exported variables -------------------------------------------------------*/
-extern uint8_t pixels[864][120]; // Pixel field
+extern uint8_t pixels[108][864]; // Pixel field
 extern uint8_t frame_flag; // is set, if a new frame was received
 
 /* Exported types -----------------------------------------------------------*/
@@ -97,8 +94,7 @@ typedef enum {
 /* Function prototypes -------------------------------------------------------*/
 
 uint8_t BSP_CAMERA_Init();
-void BSP_CAMERA_ContinuousStart(uint8_t *buff);
-void BSP_CAMERA_SnapshotStart(uint8_t *buff);
+void BSP_CAMERA_ContinuousStart(uint8_t *buff, int size_x, int size_y);
 void BSP_CAMERA_Suspend(void);
 void BSP_CAMERA_Resume(void);
 uint8_t BSP_CAMERA_Stop(void);
