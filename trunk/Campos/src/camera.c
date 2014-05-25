@@ -126,11 +126,11 @@ uint8_t BSP_CAMERA_Init() {
 	HAL_DCMI_EnableCROP(phdcmi);
 	HAL_DCMI_ConfigCROP(phdcmi, 0, 0, 120 - 1, 120 - 1);
 
-	if (ov5647_ReadID(CAMERA_I2C_ADDRESS) == OV5647_ID) {
-		/* Camera Init */
-		ov5647_Init(CAMERA_I2C_ADDRESS);
+	// Camera init
+	ov5647_Init(CAMERA_I2C_ADDRESS);
 
-		/* Return CAMERA_OK status */
+	if (ov5647_ReadID(CAMERA_I2C_ADDRESS) == OV5647_ID) {
+		// ID is corrent
 		ret = CAMERA_OK;
 	}
 
