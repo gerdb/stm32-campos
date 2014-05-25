@@ -211,22 +211,22 @@ void LCD_Image(uint8_t* pixelp) {
 	int v;
 
 	// Define the region to draw
-	ili9325_SetDisplayWindow(0, 0, 216, 27);
-	ili9325_SetCursor(0, 0);
+	ili9325_SetDisplayWindow(window_x*72+12, window_y*9+39, 72, 9);
+	ili9325_SetCursor(window_x*72+12, window_y*9+39);
 
 	// Prepare to write to the LCD ram
 	LCD_IO_WriteReg(LCD_REG_34);
 	LCD_CD_DATA();
-	for (y = 0; y < 27; y++) {
+	for (y = 0; y < 9; y++) {
 
-		for (x = 216; x != 0; x--) {
+		for (x = 72; x != 0; x--) {
 			// Draw the camera image
 			v = color_table[*pixelp];
 			// 2 pixels width
 			LCD_IO_WRITE_1xDATA(v);
-			pixelp+=4;
+			pixelp+=4*3;
 		}
-		pixelp += 864*3;
+		pixelp += 864*3*3;
 
 	}
 }
