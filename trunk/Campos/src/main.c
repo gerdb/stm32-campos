@@ -66,7 +66,7 @@ int main(void) {
 
 	// Initialize the camera and start video mode
 	BSP_CAMERA_Init();
-	BSP_CAMERA_ContinuousStart((uint8_t *) pixels);
+	BSP_CAMERA_ContinuousStart((uint8_t *) pixels, 864, 108);
 
 	// Main loop
 	while (1) {
@@ -103,10 +103,10 @@ int main(void) {
 		if (frame_flag != 0) {
 			frame_flag = 0;
 			TRACK_Search();
+			// Update the LCD
+			LCD_Image(&pixels[0][0]);
 		}
 
-		// Update the LCD
-		LCD_Image(&pixels[0][0]);
 	}
 
 }

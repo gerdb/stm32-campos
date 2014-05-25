@@ -19,9 +19,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- */
-
-/**
  * This file is also based on the following file from the STM32Cube project
  *
  ******************************************************************************
@@ -65,14 +62,13 @@
 #include "camera.h"
 #include "ov5647.h"
 
-uint8_t pixels[864][120]; // Pixel field
+uint8_t pixels[108][864]; // Pixel field
 uint8_t frame_flag = 0; // is set, if a new frame was received
 
 DCMI_HandleTypeDef hdcmi_eval;
 
 /* Prototypes of local functions ---------------------------------------------*/
 static void DCMI_MspInit(void);
-static uint32_t GetSize(void);
 
 /**
  * @brief  Initializes the camera.
@@ -124,7 +120,8 @@ uint8_t BSP_CAMERA_Init() {
 	DCMI_MspInit();
 	HAL_DCMI_Init(phdcmi);
 	HAL_DCMI_EnableCROP(phdcmi);
-	HAL_DCMI_ConfigCROP(phdcmi, 0, 0, 120 - 1, 120 - 1);
+//	HAL_DCMI_ConfigCROP(phdcmi, 0, 0, 120 - 1, 120 - 1);
+	HAL_DCMI_ConfigCROP(phdcmi, 0, 0, 864 - 1, 108 - 1);
 
 	// Camera init
 	ov5647_Init(CAMERA_I2C_ADDRESS);
@@ -142,21 +139,11 @@ uint8_t BSP_CAMERA_Init() {
  * @param  buff: pointer to the camera output buffer
  * @retval None
  */
-void BSP_CAMERA_ContinuousStart(uint8_t *buff) {
-	/* Start the camera capture */
-	HAL_DCMI_Start_DMA(&hdcmi_eval, DCMI_MODE_CONTINUOUS, (uint32_t) buff,
-			GetSize());
-}
+void BSP_CAMERA_ContinuousStart(uint8_t *buff, int size_x, int size_y) {
+	int size = size_x* size_y / 4;
 
-/**
- * @brief  Starts the camera capture in snapshot mode.
- * @param  buff: pointer to the camera output buffer
- * @retval None
- */
-void BSP_CAMERA_SnapshotStart(uint8_t *buff) {
-	/* Start the camera capture */
-	HAL_DCMI_Start_DMA(&hdcmi_eval, DCMI_MODE_SNAPSHOT, (uint32_t) buff,
-			GetSize());
+	// Start the camera capture
+	HAL_DCMI_Start_DMA(&hdcmi_eval, DCMI_MODE_CONTINUOUS, (uint32_t) buff,size);
 }
 
 /**
@@ -230,16 +217,6 @@ void BSP_CAMERA_DMA_IRQHandler(void) {
 	HAL_DMA_IRQHandler(hdcmi_eval.DMA_Handle);
 }
 
-/**
- * @brief  Get the capture size.
- * @param  current_resolution: the current resolution.
- * @retval cpature size.
- */
-static uint32_t GetSize(void) {
-
-	// 120x120
-	return 120 * 120 / 4;
-}
 
 /**
  * @brief  Initializes the DCMI MSP.
