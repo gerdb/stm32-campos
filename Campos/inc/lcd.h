@@ -45,7 +45,8 @@
 
 void LCD_Init(void);
 void LCD_Print (int x, int y, char *);
-void LCD_Image(uint8_t* pixelp);
+void LCD_Image_Small(uint8_t* pixelp);
+void LCD_Image_Large(uint8_t* pixelp);
 void LCD_FocusStatusWindow(void);
 void LCD_MiniWindow(void);
 void LCD_Clr(void);

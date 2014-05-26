@@ -151,10 +151,6 @@ void            ACCELERO_IO_ITConfig(void);
 void            ACCELERO_IO_Write(uint8_t* pBuffer, uint8_t WriteAddr, uint16_t NumByteToWrite);
 void            ACCELERO_IO_Read(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead);
 
-/* Link function for Audio peripheral */
-void            AUDIO_IO_Init(void);
-void            AUDIO_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value);
-uint8_t         AUDIO_IO_Read(uint8_t Addr, uint8_t Reg);
 /**
   * @}
   */
