@@ -66,6 +66,9 @@ uint8_t pixels[108][864]; // Pixel field
 uint8_t frame_flag = 0; // is set, if a new frame was received
 int window_x, window_y;
 int new_window_x, new_window_y;
+int offset_x, offset_y;
+int size_x, size_y;
+Camera_SizeTypeDef size;
 
 DCMI_HandleTypeDef hdcmi_eval;
 
@@ -81,6 +84,15 @@ uint8_t BSP_CAMERA_Init() {
 	DCMI_HandleTypeDef *phdcmi;
 
 	uint8_t ret = CAMERA_ERROR;
+	size_x = 120;
+	size_y = 120;
+	offset_x = 0;
+	offset_y = 0;
+	window_x = 0;
+	window_y = 0;
+	new_window_x = 0;
+	new_window_y = 0;
+
 
 	/* Configure IO functionalities for CAMERA detect pin */
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -122,21 +134,57 @@ uint8_t BSP_CAMERA_Init() {
 	DCMI_MspInit();
 	HAL_DCMI_Init(phdcmi);
 	HAL_DCMI_EnableCROP(phdcmi);
-//	HAL_DCMI_ConfigCROP(phdcmi, 0, 0, 120 - 1, 120 - 1);
-	HAL_DCMI_ConfigCROP(phdcmi, 0, 0, 864 - 1, 108 - 1);
+	BSP_CAMERA_SetSize(CAMERA_ZOOMED);
 
 	// Camera init
 	ov5647_Init(CAMERA_I2C_ADDRESS);
 
 	if (ov5647_ReadID(CAMERA_I2C_ADDRESS) == OV5647_ID) {
-		// ID is corrent
+		// ID is correct
 		ret = CAMERA_OK;
 	}
-	window_x = 0;
-	window_y = 0;
-	new_window_x = 0;
-	new_window_y = 0;
 	return ret;
+}
+
+/**
+ * @brief  Set the offset
+ * @param  o_x offset x
+ * @param  o_x offset y
+ * @retval None
+ */
+void BSP_CAMERA_SetOffset(int o_x, int o_y) {
+	offset_x = o_x;
+	offset_y = o_y;
+	HAL_DCMI_ConfigCROP(&hdcmi_eval, offset_x, offset_y, size_x - 1, size_y - 1);
+
+}
+
+/**
+ * @brief  Get the size of the video
+ * @param  none
+ * @retval size CAMERA_SMALL or CAMERA_LARGE
+ */
+Camera_SizeTypeDef BSP_CAMERA_GetSize(void) {
+	return size;
+}
+
+/**
+ * @brief  Set the size of the video
+ * @param  size CAMERA_SMALL or CAMERA_LARGE
+ * @retval None
+ */
+void BSP_CAMERA_SetSize(Camera_SizeTypeDef s) {
+	size = s;
+	if (size == CAMERA_ZOOMED) {
+		size_x = 120;
+		size_y = 120;
+	}
+	if (size == CAMERA_TOTAL) {
+		size_x = 864;
+		size_y = 108;
+	}
+	BSP_CAMERA_SetOffset(0,0);
+
 }
 
 /**
@@ -144,11 +192,11 @@ uint8_t BSP_CAMERA_Init() {
  * @param  buff: pointer to the camera output buffer
  * @retval None
  */
-void BSP_CAMERA_ContinuousStart(uint8_t *buff, int size_x, int size_y) {
-	int size = size_x* size_y / 4;
+void BSP_CAMERA_ContinuousStart(void) {
+	int bytes = size_x* size_y / 4;
 
 	// Start the camera capture
-	HAL_DCMI_Start_DMA(&hdcmi_eval, DCMI_MODE_CONTINUOUS, (uint32_t) buff,size);
+	HAL_DCMI_Start_DMA(&hdcmi_eval, DCMI_MODE_CONTINUOUS, (uint32_t) pixels,bytes);
 }
 
 /**
@@ -362,20 +410,24 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
 	//BSP_CAMERA_FrameEventCallback();
 	frame_flag = 1;
 
-	// Take the values from the last capture
-	window_x = new_window_x;
-	window_y = new_window_y;
+	if (size == CAMERA_TOTAL) {
+		// Take the values from the last capture
+		window_x = new_window_x;
+		window_y = new_window_y;
 
-	// Calculate the window position for the next capture
-	new_window_x ++;
-	if (new_window_x >= 3) {
-		new_window_x = 0;
-		new_window_y++;
-		if (new_window_y >= 18 ) {
-			new_window_y = 0;
+		// Calculate the window position for the next capture
+		new_window_x ++;
+		if (new_window_x >= 3) {
+			new_window_x = 0;
+			new_window_y++;
+			if (new_window_y >= 18 ) {
+				new_window_y = 0;
+			}
 		}
+		BSP_CAMERA_SetOffset(new_window_x*864, new_window_y*108);
+	} else {
+		BSP_CAMERA_SetOffset(0,0);
 	}
-	HAL_DCMI_ConfigCROP(hdcmi, new_window_x*864, new_window_y*108, 864 - 1, 108 - 1);
 }
 
 /**

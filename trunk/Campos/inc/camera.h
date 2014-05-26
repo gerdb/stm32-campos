@@ -76,7 +76,10 @@ typedef enum {
 	CAMERA_OK = 0x00, CAMERA_ERROR = 0x01, CAMERA_TIMEOUT = 0x02
 
 } Camera_StatusTypeDef;
+typedef enum {
+	CAMERA_ZOOMED, CAMERA_TOTAL
 
+} Camera_SizeTypeDef;
 
 /* Defines ------------------------------------------------------------------*/
 
@@ -95,7 +98,7 @@ typedef enum {
 /* Function prototypes -------------------------------------------------------*/
 
 uint8_t BSP_CAMERA_Init();
-void BSP_CAMERA_ContinuousStart(uint8_t *buff, int size_x, int size_y);
+void BSP_CAMERA_ContinuousStart(void);
 void BSP_CAMERA_Suspend(void);
 void BSP_CAMERA_Resume(void);
 uint8_t BSP_CAMERA_Stop(void);
@@ -107,6 +110,8 @@ void BSP_CAMERA_IRQHandler(void);
 void BSP_CAMERA_DMA_IRQHandler(void);
 void BSP_CAMERA_DebugWrite(uint16_t Reg, uint8_t Value);
 uint8_t BSP_CAMERA_DebugRead(uint16_t Reg);
-
+void BSP_CAMERA_SetOffset(int o_x, int o_y);
+void BSP_CAMERA_SetSize(Camera_SizeTypeDef size);
+Camera_SizeTypeDef BSP_CAMERA_GetSize(void);
 #endif /* CAMERA_H */
 

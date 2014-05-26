@@ -66,7 +66,7 @@ int main(void) {
 
 	// Initialize the camera and start video mode
 	BSP_CAMERA_Init();
-	BSP_CAMERA_ContinuousStart((uint8_t *) pixels, 864, 108);
+	BSP_CAMERA_ContinuousStart();
 
 	// Main loop
 	while (1) {
@@ -104,7 +104,10 @@ int main(void) {
 			frame_flag = 0;
 			TRACK_Search();
 			// Update the LCD
-			LCD_Image(&pixels[0][0]);
+			if (BSP_CAMERA_GetSize() == CAMERA_ZOOMED)
+				LCD_Image_Small(&pixels[0][0]);
+			else
+				LCD_Image_Large(&pixels[0][0]);
 		}
 
 	}
