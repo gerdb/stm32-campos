@@ -31,7 +31,6 @@
 
 /* function prototypes ------------------------------------------------------*/
 void SystemClock_Config(void);
-int test = 0;
 Camera_SizeTypeDef lastSize = CAMERA_NONE;
 Camera_SizeTypeDef cameraSize = CAMERA_NONE;
 char txt[20]; // Temporary memory for strings
@@ -69,6 +68,9 @@ int main(void) {
 	BSP_CAMERA_Init();
 	BSP_CAMERA_ContinuousStart();
 
+	// Initialize the tracking
+	TRACK_Init();
+
 	// Main loop
 	while (1) {
 
@@ -78,14 +80,17 @@ int main(void) {
 		// Update the status window on the right side of the TFT
 		LCD_FocusStatusWindow();
 		switch (track_status) {
+		case TRACK_INIT:
+			LCD_Print(0, LCD_Y_TRACK_STATUS, "Init ");
+			break;
 		case TRACK_SEARCHING:
-			LCD_Print(0, LCD_Y_TRACK_STATUS, "searching");
+			LCD_Print(0, LCD_Y_TRACK_STATUS, "Searching ");
 			break;
 		case TRACK_LIGHT_FOUND:
-			LCD_Print(0, LCD_Y_TRACK_STATUS, "Light");
+			LCD_Print(0, LCD_Y_TRACK_STATUS, "Light     ");
 			break;
 		case TRACK_CENTER_DETECTED:
-			LCD_Print(0, LCD_Y_TRACK_STATUS, "Center detected");
+			LCD_Print(0, LCD_Y_TRACK_STATUS, "Center    ");
 			break;
 		}
 		sprintf(txt, "%04d.%03d", position_x, position_subx);
@@ -94,17 +99,16 @@ int main(void) {
 		sprintf(txt, "%04d.%03d", position_y, position_suby);
 		LCD_Print(0, LCD_Y_POSY, txt);
 
-		sprintf(txt, "%05d", test/*intensity*/);
+		sprintf(txt, "%05d", intensity);
 		LCD_Print(0, LCD_Y_INTENSITY, txt);
 
 		// Mini window that shows the position of the actual window
-		LCD_MiniWindow();
+		LCD_MiniWindow(BSP_CAMERA_GetSize());
 
 		// Search for the light
 		if (frame_flag != 0) {
 			frame_flag = 0;
 			TRACK_Search();
-			test ++;
 			cameraSize = BSP_CAMERA_GetSize();
 
 			// Clear the LCD if the size has changed

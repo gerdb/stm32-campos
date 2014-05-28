@@ -23,7 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "lcd.h"
-#include "camera.h"
+
 
 
 /* local variables -----------------------------------------------------------*/
@@ -127,7 +127,7 @@ void LCD_FocusStatusWindow(void) {
  * @param  None
  * @retval None
  */
-void LCD_MiniWindow(void) {
+void LCD_MiniWindow(Camera_SizeTypeDef cameraSize) {
 	int x, y;
 	int mini_x1,mini_x2,mini_y1,mini_y2;
 	ili9325_SetDisplayWindow(245, 180, 72, 54);
@@ -135,10 +135,17 @@ void LCD_MiniWindow(void) {
 	/* Prepare to write GRAM */
 	LCD_IO_WriteReg(LCD_REG_34);
 
-	mini_x1 = 20;
-	mini_y1 = 10;
-	mini_x2 = mini_x1 + 3;
-	mini_y2 = mini_y1 + 3;
+	mini_x1 = offset_x/36 ;
+	mini_y1 = offset_y/36 ;
+
+	if (cameraSize == CAMERA_TOTAL) {
+		mini_x2 = mini_x1 + 23;
+		mini_y2 = mini_y1 + 2;
+	} else {
+		mini_x2 = mini_x1 + 3;
+		mini_y2 = mini_y1 + 3;
+	}
+
 	for (y = 0; y < 54; y++) {
 		for (x = 0; x < 72; x++) {
 			if (x>= mini_x1 && x<= mini_x2 && y>= mini_y1 && y<= mini_y2)

@@ -28,7 +28,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "lcd_io.h"
-
+#include "camera.h"
 
 /* Defines -------------------------------------------------------------------*/
 
@@ -48,7 +48,7 @@ void LCD_Print (int x, int y, char *);
 void LCD_Image_Zoomed(uint8_t* pixelp);
 void LCD_Image_Total(uint8_t* pixelp);
 void LCD_FocusStatusWindow(void);
-void LCD_MiniWindow(void);
+void LCD_MiniWindow(Camera_SizeTypeDef cameraSize);
 void LCD_Clr(void);
 
 #endif /* LCD_H_ */

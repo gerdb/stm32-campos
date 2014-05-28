@@ -70,7 +70,8 @@
 extern uint8_t pixels[108][864]; // Pixel field
 extern uint8_t frame_flag; // is set, if a new frame was received
 extern int window_x, window_y;
-
+extern int offset_window_x, offset_window_y; // Offset of the captured window
+extern int offset_x, offset_y;
 /* Exported types -----------------------------------------------------------*/
 typedef enum {
 	CAMERA_OK = 0x00, CAMERA_ERROR = 0x01, CAMERA_TIMEOUT = 0x02

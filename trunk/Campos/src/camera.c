@@ -64,6 +64,7 @@
 
 uint8_t pixels[108][864]; // Pixel field
 uint8_t frame_flag = 0; // is set, if a new frame was received
+int offset_window_x, offset_window_y; // Offset of the captured window
 int window_x, window_y;
 int new_window_x, new_window_y;
 int offset_x, offset_y;
@@ -93,7 +94,8 @@ uint8_t BSP_CAMERA_Init() {
 	window_y = 0;
 	new_window_x = 0;
 	new_window_y = 0;
-
+	offset_window_x = 0;
+	offset_window_y = 0;
 
 	/* Configure IO functionalities for CAMERA detect pin */
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -196,6 +198,9 @@ void BSP_CAMERA_SetSize(Camera_SizeTypeDef s) {
 		HAL_DCMI_EnableCROP(&hdcmi_eval);
 		BSP_CAMERA_SetOffset(0,0);
 		BSP_CAMERA_ContinuousStart();
+	    /* Process Unlocked */
+		__HAL_UNLOCK(&hdcmi_eval);
+
 	} else {
 		BSP_CAMERA_SetOffset(0,0);
 	}
@@ -432,6 +437,10 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
 	//BSP_CAMERA_FrameEventCallback();
 	frame_flag = 1;
 
+	// Save the offset of the captured window
+	offset_window_x = offset_x;
+	offset_window_y = offset_y;
+
 	if (size == CAMERA_TOTAL) {
 		// Take the values from the last capture
 		window_x = new_window_x;
@@ -461,7 +470,7 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
 		}
 		BSP_CAMERA_SetOffset(new_window_x*864, new_window_y*108);
 	} else {
-		BSP_CAMERA_SetOffset(0,0);
+		//BSP_CAMERA_SetOffset(0,0);
 	}
 
 	// Suppress the first frame(s)
@@ -501,4 +510,3 @@ __weak void BSP_CAMERA_ErrorCallback(void) {
 	 the HAL_DCMI_ErrorCallback could be implemented in the user file
 	 */
 }
-
