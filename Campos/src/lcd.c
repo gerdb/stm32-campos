@@ -157,7 +157,7 @@ void LCD_MiniWindow(void) {
  *
  * @param pixelp pointer to the pixel array
  */
-void LCD_Image_Small(uint8_t* pixelp) {
+void LCD_Image_Zoomed(uint8_t* pixelp) {
 
 	int x, y;
 	int v;
@@ -206,7 +206,7 @@ void LCD_Image_Small(uint8_t* pixelp) {
 	}
 }
 
-void LCD_Image_Large(uint8_t* pixelp) {
+void LCD_Image_Total(uint8_t* pixelp) {
 
 	int x, y;
 	int v;
