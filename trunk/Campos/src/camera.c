@@ -453,6 +453,10 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
 			new_window_y++;
 			if (new_window_y >= 18 ) {
 				new_window_y = 0;
+
+				// wait one frame
+				suppressFirstFrame = 1;
+				return;
 			}
 		}
 		BSP_CAMERA_SetOffset(new_window_x*864, new_window_y*108);
@@ -462,7 +466,7 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
 
 	// Suppress the first frame(s)
 	if (suppressFirstFrame > 0) {
-		suppressFirstFrame = 0;
+		suppressFirstFrame--;
 		frame_flag = 0;
 	}
 }

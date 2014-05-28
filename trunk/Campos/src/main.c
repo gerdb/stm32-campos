@@ -114,9 +114,9 @@ int main(void) {
 
 			// Update the LCD
 			if (cameraSize == CAMERA_ZOOMED)
-				LCD_Image_Small(&pixels[0][0]);
+				LCD_Image_Zoomed(&pixels[0][0]);
 			else
-				LCD_Image_Large(&pixels[0][0]);
+				LCD_Image_Total(&pixels[0][0]);
 		}
 
 	}
