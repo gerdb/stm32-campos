@@ -66,21 +66,31 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4_discovery.h"
 
-/* Exported variables -------------------------------------------------------*/
-extern uint8_t pixels[108][864]; // Pixel field
-extern uint8_t frame_flag; // is set, if a new frame was received
-extern int window_x, window_y;
-extern int offset_window_x, offset_window_y; // Offset of the captured window
-extern int offset_x, offset_y;
+
 /* Exported types -----------------------------------------------------------*/
 typedef enum {
 	CAMERA_OK = 0x00, CAMERA_ERROR = 0x01, CAMERA_TIMEOUT = 0x02
 
 } Camera_StatusTypeDef;
+
+
+typedef union  {
+	uint8_t firstByte;
+	uint8_t total[108][864];  // Pixel field as 864x108
+	uint8_t zoomed[120][120]; // Pixel field as 120x120
+} Union_PixelsType;
+
 typedef enum {
 	CAMERA_NONE, CAMERA_ZOOMED, CAMERA_TOTAL
 
 } Camera_SizeTypeDef;
+
+/* Exported variables -------------------------------------------------------*/
+extern Union_PixelsType pixels; // Pixel field
+extern uint8_t frame_flag; // is set, if a new frame was received
+extern int window_x, window_y;
+extern int offset_window_x, offset_window_y; // Offset of the captured window
+extern int offset_x, offset_y;
 
 /* Defines ------------------------------------------------------------------*/
 

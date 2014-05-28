@@ -23,7 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "lcd.h"
-
+#include "track.h"
 
 
 /* local variables -----------------------------------------------------------*/
@@ -55,7 +55,7 @@ void LCD_Init(void) {
 	// Fill the screen black
 	for (y = 0; y < 120; y++) {
 		for (x = 0; x < 120; x++) {
-			pixels[y][x] = LCD_BLACK;
+			pixels.zoomed[y][x] = LCD_BLACK;
 		}
 	}
 	LCD_Clr();
@@ -169,8 +169,8 @@ void LCD_Image_Zoomed(uint8_t* pixelp) {
 	int x, y;
 	int v;
 
-	volatile int cursor_x = 120 - 0;//position_x;
-	volatile int cursor_y = 2 * 0;//position_y;
+	volatile int cursor_x = 120 - position_intx;
+	volatile int cursor_y = 2 * position_inty;
 
 	// Define the region to draw
 	ili9325_SetDisplayWindow(0, 0, 240, 240);
