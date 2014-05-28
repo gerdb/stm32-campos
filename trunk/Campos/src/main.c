@@ -31,8 +31,9 @@
 
 /* function prototypes ------------------------------------------------------*/
 void SystemClock_Config(void);
-
-
+int test = 0;
+Camera_SizeTypeDef lastSize = CAMERA_NONE;
+Camera_SizeTypeDef cameraSize = CAMERA_NONE;
 char txt[20]; // Temporary memory for strings
 
 /**
@@ -93,7 +94,7 @@ int main(void) {
 		sprintf(txt, "%04d.%03d", position_y, position_suby);
 		LCD_Print(0, LCD_Y_POSY, txt);
 
-		sprintf(txt, "%05d", intensity);
+		sprintf(txt, "%05d", test/*intensity*/);
 		LCD_Print(0, LCD_Y_INTENSITY, txt);
 
 		// Mini window that shows the position of the actual window
@@ -103,8 +104,16 @@ int main(void) {
 		if (frame_flag != 0) {
 			frame_flag = 0;
 			TRACK_Search();
+			test ++;
+			cameraSize = BSP_CAMERA_GetSize();
+
+			// Clear the LCD if the size has changed
+			if (cameraSize != lastSize)
+				LCD_Clr();
+			lastSize = cameraSize;
+
 			// Update the LCD
-			if (BSP_CAMERA_GetSize() == CAMERA_ZOOMED)
+			if (cameraSize == CAMERA_ZOOMED)
 				LCD_Image_Small(&pixels[0][0]);
 			else
 				LCD_Image_Large(&pixels[0][0]);

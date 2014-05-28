@@ -69,8 +69,9 @@ int new_window_x, new_window_y;
 int offset_x, offset_y;
 int size_x, size_y;
 Camera_SizeTypeDef size;
-
+int capturing = 0;
 DCMI_HandleTypeDef hdcmi_eval;
+int suppressFirstFrame = 0;
 
 /* Prototypes of local functions ---------------------------------------------*/
 static void DCMI_MspInit(void);
@@ -134,7 +135,7 @@ uint8_t BSP_CAMERA_Init() {
 	DCMI_MspInit();
 	HAL_DCMI_Init(phdcmi);
 	HAL_DCMI_EnableCROP(phdcmi);
-	BSP_CAMERA_SetSize(CAMERA_ZOOMED);
+	BSP_CAMERA_SetSize(CAMERA_TOTAL);
 
 	// Camera init
 	ov5647_Init(CAMERA_I2C_ADDRESS);
@@ -174,6 +175,9 @@ Camera_SizeTypeDef BSP_CAMERA_GetSize(void) {
  * @retval None
  */
 void BSP_CAMERA_SetSize(Camera_SizeTypeDef s) {
+	int stop_start = 0;
+	stop_start = capturing;
+
 	size = s;
 	if (size == CAMERA_ZOOMED) {
 		size_x = 120;
@@ -183,7 +187,20 @@ void BSP_CAMERA_SetSize(Camera_SizeTypeDef s) {
 		size_x = 864;
 		size_y = 108;
 	}
-	BSP_CAMERA_SetOffset(0,0);
+
+	// Stop and restart the camera
+	if (stop_start) {
+		BSP_CAMERA_Stop();
+		DCMI_MspInit();
+		HAL_DCMI_Init(&hdcmi_eval);
+		HAL_DCMI_EnableCROP(&hdcmi_eval);
+		BSP_CAMERA_SetOffset(0,0);
+		BSP_CAMERA_ContinuousStart();
+	} else {
+		BSP_CAMERA_SetOffset(0,0);
+	}
+
+	suppressFirstFrame = 1;
 
 }
 
@@ -197,6 +214,7 @@ void BSP_CAMERA_ContinuousStart(void) {
 
 	// Start the camera capture
 	HAL_DCMI_Start_DMA(&hdcmi_eval, DCMI_MODE_CONTINUOUS, (uint32_t) pixels,bytes);
+	capturing = 1;
 }
 
 /**
@@ -209,6 +227,7 @@ void BSP_CAMERA_Suspend(void) {
 	__HAL_DMA_DISABLE(hdcmi_eval.DMA_Handle);
 	/* Disable the DCMI */
 	__HAL_DCMI_DISABLE(&hdcmi_eval);
+	capturing = 0;
 
 }
 
@@ -222,6 +241,7 @@ void BSP_CAMERA_Resume(void) {
 	__HAL_DCMI_ENABLE(&hdcmi_eval);
 	/* Enable the DMA */
 	__HAL_DMA_ENABLE(hdcmi_eval.DMA_Handle);
+	capturing = 1;
 }
 
 /**
@@ -240,7 +260,7 @@ uint8_t BSP_CAMERA_Stop(void) {
 	if (HAL_DCMI_Stop(phdcmi) == HAL_OK) {
 		ret = CAMERA_OK;
 	}
-
+	capturing = 0;
 	return ret;
 }
 
@@ -401,6 +421,8 @@ __weak void BSP_CAMERA_VsyncEventCallback(void) {
 	 */
 }
 
+
+
 /**
  * @brief  Frame event callback
  * @param  hdcmi: pointer to the DCMI handle
@@ -417,6 +439,15 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
 
 		// Calculate the window position for the next capture
 		new_window_x ++;
+
+		// Restart on the top left corner
+		if (suppressFirstFrame > 0) {
+			window_x = 0;
+			new_window_x = 0;
+			window_y = 0;
+			new_window_y = 0;
+		}
+
 		if (new_window_x >= 3) {
 			new_window_x = 0;
 			new_window_y++;
@@ -427,6 +458,12 @@ void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
 		BSP_CAMERA_SetOffset(new_window_x*864, new_window_y*108);
 	} else {
 		BSP_CAMERA_SetOffset(0,0);
+	}
+
+	// Suppress the first frame(s)
+	if (suppressFirstFrame > 0) {
+		suppressFirstFrame = 0;
+		frame_flag = 0;
 	}
 }
 
