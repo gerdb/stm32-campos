@@ -77,7 +77,7 @@ typedef enum {
 
 } Camera_StatusTypeDef;
 typedef enum {
-	CAMERA_ZOOMED, CAMERA_TOTAL
+	CAMERA_NONE, CAMERA_ZOOMED, CAMERA_TOTAL
 
 } Camera_SizeTypeDef;
 

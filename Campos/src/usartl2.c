@@ -102,6 +102,13 @@ void USARTL2_Decode(char c) {
 			}
 			my_printf("\r\n>");
 		}
+
+		if (c == 't') {
+			BSP_CAMERA_SetSize(CAMERA_TOTAL);
+		}
+		if (c == 'z') {
+			BSP_CAMERA_SetSize(CAMERA_ZOOMED);
+		}
 		break;
 	case DECODE_ADDRESS:
 		if (c == ' ') {
