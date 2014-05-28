@@ -62,7 +62,8 @@
 #include "camera.h"
 #include "ov5647.h"
 
-uint8_t pixels[108][864]; // Pixel field
+Union_PixelsType pixels; // Pixel field
+
 uint8_t frame_flag = 0; // is set, if a new frame was received
 int offset_window_x, offset_window_y; // Offset of the captured window
 int window_x, window_y;
@@ -218,7 +219,7 @@ void BSP_CAMERA_ContinuousStart(void) {
 	int bytes = size_x* size_y / 4;
 
 	// Start the camera capture
-	HAL_DCMI_Start_DMA(&hdcmi_eval, DCMI_MODE_CONTINUOUS, (uint32_t) pixels,bytes);
+	HAL_DCMI_Start_DMA(&hdcmi_eval, DCMI_MODE_CONTINUOUS, (uint32_t) (&pixels.firstByte),bytes);
 	capturing = 1;
 }
 

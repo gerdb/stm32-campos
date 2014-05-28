@@ -39,6 +39,8 @@ typedef enum {
 /* global variables ---------------------------------------------------------*/
 extern int position_x; 		// position in sensor pixels
 extern int position_y; 		// position in sensor pixels
+extern int position_intx; 	// position in sensor pixels in a 120x120pixel frame
+extern int position_inty; 	// position in sensor pixels in a 120x120pixel frame
 extern int position_subx; 	// sub pixel position from 0..999
 extern int position_suby; 	// sub pixel position from 0..999
 extern int intensity; 		// intensity (integral of all pixel values)

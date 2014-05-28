@@ -96,7 +96,7 @@ void USARTL2_Decode(char c) {
 			my_printf("\r\n");
 			for (y=0; y<120; y++) {
 				for (x=0; x<120; x++) {
-					my_printf("%03d ",pixels[y][x]);
+					my_printf("%03d ",pixels.zoomed[y][x]);
 				}
 				my_printf("\r\n");
 			}

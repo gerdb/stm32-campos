@@ -26,10 +26,6 @@
 #include "camera.h"
 
 
-
-extern int size_x, size_y;
-extern DCMI_HandleTypeDef hdcmi_eval;
-
 /* global variables ---------------------------------------------------------*/
 int position_x = 0; 	// position in sensor pixels
 int position_y = 0; 	// position in sensor pixels
@@ -89,10 +85,10 @@ void TRACK_Search(void) {
 	} else if (track_status == TRACK_SEARCHING) {
 		for (y = 0; y < 108; y++) {
 			for (x = 0; x < 864; x++) {
-				if (pixels[y][x] > max) {
+				if (pixels.total[y][x] > max) {
 					maxx = x + window_x*864;
 					maxy = y + window_y*108;;
-					max = pixels[y][x];
+					max = pixels.total[y][x];
 				}
 			}
 		}
@@ -118,9 +114,6 @@ void TRACK_Search(void) {
 					y = (1944-120);
 
 				BSP_CAMERA_SetOffset(x,y);
-//				offset_x = x;
-//				offset_y = y;
-//				HAL_DCMI_ConfigCROP(&hdcmi_eval, offset_x, offset_y, size_x - 1, size_y - 1);
 				track_status = TRACK_LIGHT_FOUND;
 			}
 		}
@@ -130,8 +123,8 @@ void TRACK_Search(void) {
 		integral = 0;
 
 		// Calculate the relative position
-		position_intx =  offset_window_x - position_x;
-		position_inty =  offset_window_y - position_y;
+		position_intx =  position_x - offset_window_x;
+		position_inty =  position_y - offset_window_y;
 
 		if (position_inty>16 && position_inty<(120-16)
 				&& position_intx>16 && position_intx<(120-16)) {
@@ -139,7 +132,7 @@ void TRACK_Search(void) {
 			for (x = 0; x < 32; x++) {
 				intensity_x[x] = 0;
 				for (y = 0; y < 32; y++) {
-					v = pixels[position_inty+y-16][position_intx+x-16];
+					v = pixels.zoomed[position_inty+y-16][position_intx+x-16];
 					if (v > 40) {
 						intensity_x[x] += v;
 						integral += v;
@@ -176,7 +169,7 @@ void TRACK_Search(void) {
 			for (y = 0; y < 32; y++) {
 				intensity_y[y] = 0;
 				for (x = 0; x < 32; x++) {
-					v = pixels[position_inty+y-16][position_intx+x-16];
+					v = pixels.zoomed[position_inty+y-16][position_intx+x-16];
 					if (v > 40) {
 						intensity_y[y] += v;
 						integral += v;
@@ -205,6 +198,10 @@ void TRACK_Search(void) {
 				else
 					position_suby = 0;
 			}
+
+			// Calculate the absolute position
+			position_x = position_intx + offset_window_x;
+			position_y = position_inty + offset_window_y;
 
 		}
 		intensity = integral;
