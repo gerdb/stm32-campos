@@ -435,6 +435,10 @@ __weak void BSP_CAMERA_VsyncEventCallback(void) {
  * @retval None
  */
 void HAL_DCMI_FrameEventCallback(DCMI_HandleTypeDef *hdcmi) {
+
+	// Send IR header. It's also the sync pulse
+	IRLINK_StartHeader();
+
 	//BSP_CAMERA_FrameEventCallback();
 	frame_flag = 1;
 

@@ -25,11 +25,18 @@
 
 #include "irlink.h"
 
+uint16_t irdata[3] = { 0, 0, 0 };
+
 /* local functions ----------------------------------------------------------*/
 
 /* local variables ----------------------------------------------------------*/
 TIM_HandleTypeDef htim3;
 TIM_OC_InitTypeDef sConfigTim3;
+
+int header_cnt;
+int data_phase_cnt;
+int data_bit_cnt;
+int data_byte_cnt;
 
 /**
  * @brief  Initialize the module and configure PWM PB5 as PWM output with 36kHz
@@ -40,7 +47,7 @@ void IRLINK_Init(void) {
 
 	// Timer configuration
 	htim3.Instance = TIM3;
-	htim3.Init.Period = 1166-1; // = 36kHz = 42MHz / 1166
+	htim3.Init.Period = 1166 - 1; // = 36kHz = 42MHz / 1166
 	htim3.Init.Prescaler = 1;
 	htim3.Init.ClockDivision = 1;
 	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -56,8 +63,11 @@ void IRLINK_Init(void) {
 	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigTim3, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 
+	header_cnt = 0;
+	data_phase_cnt = 0;
+	data_bit_cnt = 0;
+	data_byte_cnt = 0;
 }
-
 
 /**
  * @brief  Outputs a 36kHz burst, or none
@@ -66,7 +76,7 @@ void IRLINK_Init(void) {
  */
 void IRLINK_Output(int value) {
 	if (value != 0) {
-		__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_2, 1166/2);
+		__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_2, 1166 / 2);
 	} else {
 		__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_2, 0);
 	}
@@ -94,4 +104,97 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim) {
 	GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
 	GPIO_InitStructure.Alternate = GPIO_AF2_TIM3;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+}
+
+
+/**
+ * @brief  Send the header
+ * @param  None
+ * @retval None
+ */
+void IRLINK_StartHeader(void) {
+	IRLINK_Output(1);
+	header_cnt = 5 + 1;
+}
+
+
+/**
+ * @brief  Send all the data in the 1ms task
+ * @param  None
+ * @retval None
+ */
+void IRLINK_1msTask(void) {
+
+	// Header is n ms high and then one ms low.
+	if (header_cnt > 0) {
+		header_cnt--;
+		if (header_cnt == 0) {
+			IRLINK_Output(0);
+		} else {
+			IRLINK_Output(1);
+		}
+
+	} else {
+		if (data_byte_cnt <= 2) {
+
+			// Manchester code
+			if (data_phase_cnt == 0) {
+				if (irdata[data_byte_cnt] & 0x8000) {
+					IRLINK_Output(1);
+				} else {
+					IRLINK_Output(0);
+				}
+			} else {
+				if (irdata[data_byte_cnt] & 0x8000) {
+					IRLINK_Output(0);
+				} else {
+					IRLINK_Output(1);
+				}
+			}
+
+			// Next phase
+			data_phase_cnt++;
+			if (data_phase_cnt >= 2 ) {
+
+				// Next bit
+				irdata[data_byte_cnt] <<= 1;
+				data_phase_cnt = 0;
+				data_bit_cnt ++;
+				if (data_bit_cnt >= 8 ) {
+
+					// Next byte
+					data_bit_cnt = 0;
+					data_byte_cnt ++;
+				}
+			}
+		} else {
+			// finished
+			IRLINK_Output(0);
+		}
+	}
+}
+
+
+
+/**
+ * @brief  The data to send. All data is copied to a memory structure
+ *
+ * @param  track_status The track_status
+ * @param  position_x The position_x
+ * @param  position_subx The position_subx
+ * @param  position_y The position_y
+ * @param  position_suby The position_suby
+ * @param  intensity The intensity
+ * @retval None
+ */
+void IRLINK_Send(Track_StatusTypeDef track_status, int position_x,
+		int position_subx, int position_y, int position_suby, int intensity) {
+
+	irdata[0] = position_x*10 + position_subx / 100;
+	irdata[1] = position_y*10 + position_suby / 100;
+	irdata[2] = (intensity/256)*256 + (int)track_status;
+
+	data_phase_cnt = 0;
+	data_bit_cnt = 0;
+	data_byte_cnt = 0;
 }

@@ -27,7 +27,7 @@
 #include "camera.h"
 #include "lcd.h"
 #include "track.h"
-
+#include "irlink.h"
 
 /* function prototypes ------------------------------------------------------*/
 void SystemClock_Config(void);
@@ -122,6 +122,13 @@ int main(void) {
 		if (frame_flag != 0) {
 			frame_flag = 0;
 			TRACK_Search();
+
+			// Send the tracking result via IR
+			IRLINK_Send(track_status ,
+					position_x, position_subx,
+					position_y, position_suby,
+					intensity);
+
 			cameraSize = BSP_CAMERA_GetSize();
 
 			// Clear the LCD if the size has changed
