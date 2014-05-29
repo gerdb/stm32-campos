@@ -31,6 +31,11 @@
 #include "stm32f4_discovery.h"
 #include "camera.h"
 
+/* Define --------------------------------------------------------------------*/
+#define LED_RED   LED5
+#define LED_GREEN LED4
+#define LED_BLUE  LED6
+
 /* Function prototypes -------------------------------------------------------*/
 void Error_Handler(void);
 
