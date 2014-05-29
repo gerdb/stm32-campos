@@ -228,9 +228,25 @@ void TRACK_Search(void) {
 			position_x = position_intx + offset_window_x;
 			position_y = position_inty + offset_window_y;
 
+			// Check, whether the window has to move
+			x = position_x / 60 * 60 - 30;
+			if (x<0)
+				x = 0;
+			if (x > (2592-120))
+				x = (2592-120);
+			y = position_y / 60 * 60 - 30;
+			if (y<0)
+				y = 0;
+			if (y > (1944-120))
+				y = (1944-120);
+
+			// Move the window if necessary
+			if (x != offset_x || y != offset_y)
+				BSP_CAMERA_SetOffset(x,y);
+
 		}
 		intensity = integral;
-		if (intensity < 100 ) {
+		if (intensity < 2000 ) {
 			lost_cnt ++;
 			track_status = TRACK_LOST;
 			// Timeout of 50 frames = about 5sec
