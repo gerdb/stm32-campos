@@ -24,6 +24,7 @@
 /* Includes -----------------------------------------------------------------*/
 #include "usartl2.h"
 #include "camera.h"
+#include "track.h"
 
 /* local variables ----------------------------------------------------------*/
 enDecodeState decodeState;
@@ -32,7 +33,7 @@ uint32_t decodePos;
 uint32_t decodeAddress;
 uint32_t decodeData;
 extern DCMI_HandleTypeDef  hdcmi_eval;
-
+int debug_on;
 
 /**
  * @brief  Initialize the module
@@ -43,6 +44,7 @@ void USARTL2_Init(void) {
 	USARTL1_Init();
 	decodeState = DECODE_CMD;
 	decodePos = 0;
+	debug_on = 0;
 	my_printf("\r\n>");
 }
 
@@ -61,6 +63,17 @@ uint32_t hex2dec(char c) {
 		return c - 'A' + 10;
 	return -1;
 
+}
+
+/**
+ * @brief This function is called, when a complete frame was decoded
+ * @param none
+ * @retval none
+ */
+void USARTL2_FrameCallback(void) {
+	if (debug_on) {
+		my_printf("%04d.%03d;%04d.%03d;%05d\r\n", position_x, position_subx, position_y, position_suby, intensity);
+	}
 }
 
 /**
@@ -108,6 +121,12 @@ void USARTL2_Decode(char c) {
 		}
 		if (c == 'z') {
 			BSP_CAMERA_SetSize(CAMERA_ZOOMED);
+		}
+		if (c == 'd') {
+			debug_on = 0;
+		}
+		if (c == 'D') {
+			debug_on = 1;
 		}
 		break;
 	case DECODE_ADDRESS:

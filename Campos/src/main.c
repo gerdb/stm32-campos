@@ -131,6 +131,8 @@ int main(void) {
 				LCD_Image_Zoomed(&pixels.firstByte);
 			else
 				LCD_Image_Total(&pixels.firstByte);
+			// Debug console
+			USARTL2_FrameCallback();
 		}
 
 	}
