@@ -24,6 +24,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "lcd.h"
 #include "track.h"
+#include "logo.h"
 
 
 /* local variables -----------------------------------------------------------*/
@@ -59,23 +60,33 @@ void LCD_Init(void) {
 		}
 	}
 	LCD_Clr();
+	LCD_DrawInfoWindow();
+}
 
+/**
+ * Redraws the right info windo
+ *
+ * @param none
+ * @retval None
+ */
+void LCD_DrawInfoWindow(void) {
+	int i;
 	// Draw the info window on the right side
 	ili9325_SetDisplayWindow(240, 0, 80, 240);
 	ili9325_SetCursor(240, 0);
 
 	// Prepare to write to the LCD ram
 	LCD_IO_WriteReg(LCD_REG_34);
-	for (x = 80 * 240; x != 0; x--)
+	for (i = 80 * 240; i != 0; i--)
 		LCD_IO_WriteData(LCD_BLACK);
 
 	// Print the header texts
-	LCD_Print(0, 0, "State:");
-	LCD_Print(0, 3, "X:");
-	LCD_Print(0, 6, "Y:");
-	LCD_Print(0, 9, "Intensity:");
-
+	LCD_Print(35, 0, "State:", LCD_OPAQUE);
+	LCD_Print(35, 3, "X:", LCD_OPAQUE);
+	LCD_Print(35, 6, "Y:", LCD_OPAQUE);
+	LCD_Print(35, 9, "Intensity:", LCD_OPAQUE);
 }
+
 
 /**
  * Print a string
@@ -83,9 +94,10 @@ void LCD_Init(void) {
  * @param x Horizontal position in 7 pixel steps
  * @param y Vertical position in 13 pixel steps
  * @param s String to print
+ * @param transparent or opaque background
  * @retval None
  */
-void LCD_Print(int x, int y, char * s) {
+void LCD_Print(int x, int y, char * s, int transparent) {
 	int cy, cx;
 	int fontdata;
 	int xx;
@@ -96,7 +108,7 @@ void LCD_Print(int x, int y, char * s) {
 	for (ci = 0; (ci < 10) && (s[ci]!=0); ci++) {
 		for (cy = 0; cy < 12; cy ++) {
 			// Write one character
-			ili9325_SetCursor(245 + (cx + ci) * 7, 5 + y*13+cy);
+			ili9325_SetCursor( (cx + ci) * 7, 5 + y*13+cy);
 			LCD_IO_WriteReg(LCD_REG_34);
 			// Get the font
 			fontdata = Font12_Table[(s[ci]-' ')*12+cy];
@@ -104,8 +116,14 @@ void LCD_Print(int x, int y, char * s) {
 				// Write it with white pixels on black
 				if (fontdata & 0x80)
 					LCD_IO_WriteData(LCD_WHITE);
-				else
-					LCD_IO_WriteData(LCD_BLACK);
+				else {
+					if (transparent == LCD_OPAQUE)
+						LCD_IO_WriteData(LCD_BLACK);
+					else {
+						ili9325_SetCursor( (cx + ci) * 7 +xx, 5 + y*13+cy);
+						LCD_IO_WriteReg(LCD_REG_34);
+					}
+				}
 				fontdata <<= 1;
 			}
 		}
@@ -268,3 +286,27 @@ void LCD_Clr(void) {
 
 	}
 }
+
+
+
+/**
+ * @brief Draw the startup logo
+ *
+ * @param  None
+ * @retval None
+ */
+void LCD_Logo(void) {
+	int i;
+
+	// Define the region to draw
+	ili9325_SetDisplayWindow(0, 0, 320, 240);
+	ili9325_SetCursor(0, 0);
+
+	// Prepare to write to the LCD ram
+	LCD_IO_WriteReg(LCD_REG_34);
+	LCD_CD_DATA();
+	for (i = 0; i < (240*320); i++) {
+		LCD_IO_WRITE_1xDATA(logo[i]);
+	}
+}
+

@@ -71,6 +71,13 @@ int main(void) {
 	// Initialize the tracking
 	TRACK_Init();
 
+	// Startup Logo
+	LCD_Logo();
+	LCD_Print(31,14,"1.0.0",LCD_TRANSPARENT);
+	HAL_Delay(5000);
+	LCD_Clr();
+	LCD_DrawInfoWindow();
+
 	// Main loop
 	while (1) {
 
@@ -81,29 +88,29 @@ int main(void) {
 		LCD_FocusStatusWindow();
 		switch (track_status) {
 		case TRACK_INIT:
-			LCD_Print(0, LCD_Y_TRACK_STATUS, "Init ");
+			LCD_Print(35, LCD_Y_TRACK_STATUS, "Init     ", LCD_OPAQUE);
 			break;
 		case TRACK_SEARCHING:
-			LCD_Print(0, LCD_Y_TRACK_STATUS, "Searching ");
+			LCD_Print(35, LCD_Y_TRACK_STATUS, "Searching", LCD_OPAQUE);
 			break;
 		case TRACK_LIGHT_FOUND:
-			LCD_Print(0, LCD_Y_TRACK_STATUS, "Light     ");
+			LCD_Print(35, LCD_Y_TRACK_STATUS, "Light    ", LCD_OPAQUE);
 			break;
 		case TRACK_CENTER_DETECTED:
-			LCD_Print(0, LCD_Y_TRACK_STATUS, "Center    ");
+			LCD_Print(35, LCD_Y_TRACK_STATUS, "Center   ", LCD_OPAQUE);
 			break;
 		case TRACK_LOST:
-			LCD_Print(0, LCD_Y_TRACK_STATUS, "Lost      ");
+			LCD_Print(35, LCD_Y_TRACK_STATUS, "Lost     ", LCD_OPAQUE);
 			break;
 		}
 		sprintf(txt, "%04d.%03d", position_x, position_subx);
-		LCD_Print(0, LCD_Y_POSX, txt);
+		LCD_Print(35, LCD_Y_POSX, txt, LCD_OPAQUE);
 
 		sprintf(txt, "%04d.%03d", position_y, position_suby);
-		LCD_Print(0, LCD_Y_POSY, txt);
+		LCD_Print(35, LCD_Y_POSY, txt, LCD_OPAQUE);
 
 		sprintf(txt, "%05d", intensity);
-		LCD_Print(0, LCD_Y_INTENSITY, txt);
+		LCD_Print(35, LCD_Y_INTENSITY, txt, LCD_OPAQUE);
 
 		// Mini window that shows the position of the actual window
 		LCD_MiniWindow(BSP_CAMERA_GetSize());

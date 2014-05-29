@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+	function createArray(length) {
+    var arr = new Array(length || 0),
+        i = length;
+
+    if (arguments.length > 1) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        while(i--) arr[length-1 - i] = createArray.apply(this, args);
+    }
+
+    return arr;
+}
+function doit() {
+	var pixels = createArray(120,320, 3);
+	var x,y,xx,yy;
+	var r=0,g=0,b=0;
+	var s = "";
+
+	var index;
+	var r5g6b5 = 0;
+	var ctx=document.getElementById("myCanvas").getContext("2d");
+
+	imageData = ctx.getImageData(0, 0, 320, 240);
+	var nl=0;
+	for (y=0; y<240; y++) {
+		for (x=0; x<320; x++) {
+			index = (x + y * 320) * 4;
+			r = parseInt(imageData.data[index+0] / 8);
+			g = parseInt(imageData.data[index+1] / 4);
+			b = parseInt(imageData.data[index+2] / 8);
+			r5g6b5 = r*32*64 +g*32 + b;
+			s += "0x"+ r5g6b5.toString(16) +",";
+			nl++;
+			if (nl >= 12) {
+				nl = 0;
+				s +="\n";
+			}
+		}
+	}
+	window.document.getElementById("texta").value = s;
+	
+}
+</script>
+
+<img id = "myimg" src="img.png" >
+<canvas id="myCanvas" width="320" height="240" style="border:none;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+<br />
+<textarea id="texta" style=" width: 100%; height:300px;"></textarea>
+<br />
+<button onclick ="doit();">Convert</button>
+<script>
+	var ctx=document.getElementById("myCanvas").getContext("2d");
+	var img=document.getElementById("myimg");
+	ctx.drawImage(img,0,0,320,240);
+	window.document.getElementById("texta").value = "";
+</script>
+
+</body>
+</html>
