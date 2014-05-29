@@ -64,6 +64,8 @@
 #include "usartl1.h"
 #include "irlink.h"
 
+
+extern int mytick;
 /** @addtogroup STM32F4xx_HAL_Examples
  * @{
  */
@@ -167,6 +169,7 @@ void PendSV_Handler(void) {
 void SysTick_Handler(void) {
 	IRLINK_1msTask();
 	HAL_IncTick();
+	mytick ++;
 }
 /**
  * @brief  DMA interrupt handler.

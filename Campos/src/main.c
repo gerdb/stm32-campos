@@ -34,7 +34,8 @@ void SystemClock_Config(void);
 Camera_SizeTypeDef lastSize = CAMERA_NONE;
 Camera_SizeTypeDef cameraSize = CAMERA_NONE;
 char txt[20]; // Temporary memory for strings
-
+int blink = 0;
+int mytick = 0;
 /**
  * @brief  Main program.
  * @param  None
@@ -85,10 +86,17 @@ int main(void) {
 	HAL_Delay(5000);
 	LCD_Clr();
 	LCD_DrawInfoWindow();
+	frame_flag = 0;
+
 
 	// Main loop
 	while (1) {
 
+		// Generate a blink flag
+		if (mytick > 200) {
+			mytick = 0;
+			blink = !blink;
+		}
 		// Debug ports
 		USARTL1_RxBufferTask();
 
@@ -97,21 +105,31 @@ int main(void) {
 		switch (track_status) {
 		case TRACK_INIT:
 			LCD_Print(35, LCD_Y_TRACK_STATUS, "Init     ", LCD_OPAQUE);
-			BSP_LED_Off(LED_GREEN); // blue
-			BSP_LED_On(LED_BLUE);
-			BSP_LED_Off(LED_RED);
+			BSP_LED_Off(LED_GREEN);
+			BSP_LED_Off(LED_BLUE);
+			if (blink)
+				BSP_LED_On(LED_RED);	// red blinking
+			else
+				BSP_LED_Off(LED_RED);	// red blinking
 			break;
 		case TRACK_SEARCHING:
 			LCD_Print(35, LCD_Y_TRACK_STATUS, "Searching", LCD_OPAQUE);
-			BSP_LED_On(LED_GREEN); // yellow
+			BSP_LED_Off(LED_GREEN);
 			BSP_LED_Off(LED_BLUE);
-			BSP_LED_On(LED_RED);
+			if (blink)
+				BSP_LED_On(LED_RED);	// red blinking
+			else
+				BSP_LED_Off(LED_RED);	// red blinking
+
 			break;
 		case TRACK_LIGHT_FOUND:
 			LCD_Print(35, LCD_Y_TRACK_STATUS, "Light    ", LCD_OPAQUE);
-			BSP_LED_On(LED_GREEN); // yellow
+			BSP_LED_Off(LED_GREEN);
 			BSP_LED_Off(LED_BLUE);
-			BSP_LED_On(LED_RED);
+			if (blink)
+				BSP_LED_On(LED_RED);	// red blinking
+			else
+				BSP_LED_Off(LED_RED);	// red blinking
 			break;
 		case TRACK_CENTER_DETECTED:
 			LCD_Print(35, LCD_Y_TRACK_STATUS, "Center   ", LCD_OPAQUE);
@@ -121,9 +139,9 @@ int main(void) {
 			break;
 		case TRACK_LOST:
 			LCD_Print(35, LCD_Y_TRACK_STATUS, "Lost     ", LCD_OPAQUE);
-			BSP_LED_Off(LED_GREEN); // red
+			BSP_LED_Off(LED_GREEN);
 			BSP_LED_Off(LED_BLUE);
-			BSP_LED_On(LED_RED);
+			BSP_LED_On(LED_RED);	// red
 			break;
 		}
 		sprintf(txt, "%04d.%03d", position_x, position_subx);
