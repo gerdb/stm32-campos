@@ -25,15 +25,18 @@
 
 #include "irlink.h"
 
-uint16_t irdata[3] = { 0, 0, 0 };
-
-/* local functions ----------------------------------------------------------*/
-
 /* local variables ----------------------------------------------------------*/
+uint16_t irdata[4] = { 0, 0, 0, 0};
+
 TIM_HandleTypeDef htim3;
 TIM_OC_InitTypeDef sConfigTim3;
+CRC_HandleTypeDef   CrcHandle;
+uint32_t uwCRCValue = 0;
 
 int header_cnt;
+int header_sent;
+int header_endcnt;
+int send_data;
 int data_phase_cnt;
 int data_bit_cnt;
 int data_byte_cnt;
@@ -63,10 +66,17 @@ void IRLINK_Init(void) {
 	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigTim3, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
 
+	// Configure the CRC module
+	CrcHandle.Instance = CRC;
+	HAL_CRC_Init(&CrcHandle);
+
 	header_cnt = 0;
 	data_phase_cnt = 0;
 	data_bit_cnt = 0;
-	data_byte_cnt = 0;
+	header_sent = 0;
+
+	// Set to 0 to stop the transmission
+	send_data = 0;
 }
 
 /**
@@ -115,6 +125,7 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim) {
 void IRLINK_StartHeader(void) {
 	IRLINK_Output(1);
 	header_cnt = 5 + 1;
+	header_sent = 1;
 }
 
 
@@ -128,48 +139,53 @@ void IRLINK_1msTask(void) {
 	// Header is n ms high and then one ms low.
 	if (header_cnt > 0) {
 		header_cnt--;
-		if (header_cnt == 0) {
+		//IRLINK_Output(1);
+
+	} else if(send_data) {
+		if (header_endcnt > 0) {
+			// pause x ms
+			header_endcnt--;
 			IRLINK_Output(0);
 		} else {
-			IRLINK_Output(1);
-		}
+			// Send now the data
+			if (data_byte_cnt < 4) {
 
-	} else {
-		if (data_byte_cnt <= 2) {
-
-			// Manchester code
-			if (data_phase_cnt == 0) {
-				if (irdata[data_byte_cnt] & 0x8000) {
-					IRLINK_Output(1);
+				// Manchester code
+				if (data_phase_cnt == 0) {
+					if (irdata[data_byte_cnt] & 0x8000) {
+						IRLINK_Output(1);
+					} else {
+						IRLINK_Output(0);
+					}
 				} else {
-					IRLINK_Output(0);
+					if (irdata[data_byte_cnt] & 0x8000) {
+						IRLINK_Output(0);
+					} else {
+						IRLINK_Output(1);
+					}
+				}
+
+				// Next phase
+				data_phase_cnt++;
+				if (data_phase_cnt >= 2 ) {
+
+					// Next bit
+					irdata[data_byte_cnt] <<= 1;
+					data_phase_cnt = 0;
+					data_bit_cnt ++;
+					if (data_bit_cnt >= 8 ) {
+
+						// Next byte
+						data_bit_cnt = 0;
+						data_byte_cnt ++;
+					}
 				}
 			} else {
-				if (irdata[data_byte_cnt] & 0x8000) {
-					IRLINK_Output(0);
-				} else {
-					IRLINK_Output(1);
-				}
+				// finished
+				IRLINK_Output(0);
+				send_data = 0;
+				header_sent = 0;
 			}
-
-			// Next phase
-			data_phase_cnt++;
-			if (data_phase_cnt >= 2 ) {
-
-				// Next bit
-				irdata[data_byte_cnt] <<= 1;
-				data_phase_cnt = 0;
-				data_bit_cnt ++;
-				if (data_bit_cnt >= 8 ) {
-
-					// Next byte
-					data_bit_cnt = 0;
-					data_byte_cnt ++;
-				}
-			}
-		} else {
-			// finished
-			IRLINK_Output(0);
 		}
 	}
 }
@@ -190,11 +206,51 @@ void IRLINK_1msTask(void) {
 void IRLINK_Send(Track_StatusTypeDef track_status, int position_x,
 		int position_subx, int position_y, int position_suby, int intensity) {
 
+	// If header was not sent, do not send data
+	if (!header_sent)
+		return;
+
 	irdata[0] = position_x*10 + position_subx / 100;
 	irdata[1] = position_y*10 + position_suby / 100;
 	irdata[2] = (intensity/256)*256 + (int)track_status;
+	irdata[3] = 0;
+
+	// Calculate the CRC
+	uwCRCValue = HAL_CRC_Accumulate(&CrcHandle, (uint32_t *)irdata, 4 / 2);
+	irdata[3] = (uint16_t)uwCRCValue;
 
 	data_phase_cnt = 0;
 	data_bit_cnt = 0;
 	data_byte_cnt = 0;
+	header_endcnt = 3;
+	send_data = 1;
+}
+
+/**
+  * @brief CRC MSP Initialization
+  *        This function configures the hardware resources used in this example:
+  *           - Peripheral's clock enable
+  * @param hcrc: CRC handle pointer
+  * @retval None
+  */
+void HAL_CRC_MspInit(CRC_HandleTypeDef *hcrc)
+{
+   /* CRC Peripheral clock enable */
+  __CRC_CLK_ENABLE();
+}
+
+/**
+  * @brief CRC MSP De-Initialization
+  *        This function freeze the hardware resources used in this example:
+  *          - Disable the Peripheral's clock
+  * @param hcrc: CRC handle pointer
+  * @retval None
+  */
+void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
+{
+  /* Enable CRC reset state */
+  __CRC_FORCE_RESET();
+
+  /* Release CRC from reset state */
+  __CRC_RELEASE_RESET();
 }
