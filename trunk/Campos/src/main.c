@@ -54,6 +54,9 @@ int main(void) {
 	// Initialize the LCD display
 	LCD_Init();
 
+	// Initialize the IR link
+	IRLINK_Init();
+
 	// Configure LEDs
 	BSP_LED_Init(LED3);
 	BSP_LED_Init(LED4);
