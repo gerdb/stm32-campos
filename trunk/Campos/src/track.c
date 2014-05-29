@@ -164,86 +164,91 @@ void TRACK_Search(void) {
 					}
 				}
 			}
-			integral_l = 0;
-			maxx = 16;
-			for (x = 0; x < 32; x++) {
-				if (integral_l < (integral/2)) {
-					integral_l += intensity_x[x];
-					maxx = x;
-				}
-			}
-			maxx-=16;
-			if ((maxx >-8) && (maxx <8)) {
-				position_intx += maxx;
-				integral_m = intensity_x[maxx+16];
-				integral_r = integral - integral_l;
-				integral_l = integral_l - integral_m;
 
-				if (integral_m>0) {
-					position_subx = (1000*(integral_m - (integral_l-integral_r))/2)/integral_m;
-				}
-				else
-					position_subx = 0;
-			}
-
-
-
-
-
-			integral = 0;
-			for (y = 0; y < 32; y++) {
-				intensity_y[y] = 0;
+			if (integral >= 2000) {
+				integral_l = 0;
+				maxx = 16;
 				for (x = 0; x < 32; x++) {
-					v = pixels.zoomed[position_inty+y-16][position_intx+x-16];
-					if (v > 40) {
-						intensity_y[y] += v;
-						integral += v;
+					if (integral_l < (integral/2)) {
+						integral_l += intensity_x[x];
+						maxx = x;
 					}
 				}
-			}
-			integral_l = 0;
-			maxy = 16;
-			for (y = 0; y < 32; y++) {
-				if ((integral_l*2) < integral) {
-					integral_l += intensity_y[y];
-					maxy = y;
+				maxx-=16;
+				if ((maxx >-8) && (maxx <8)) {
+					position_intx += maxx;
+					integral_m = intensity_x[maxx+16];
+					integral_r = integral - integral_l;
+					integral_l = integral_l - integral_m;
+
+					if (integral_m>0) {
+						position_subx = (1000*(integral_m - (integral_l-integral_r))/2)/integral_m;
+					}
+					else
+						position_subx = 0;
 				}
-			}
 
-			maxy-=16;
-			if ((maxy >-8) && (maxy <8)) {
-				position_inty += maxy;
-				integral_m = intensity_y[maxy+16];
-				integral_r = integral - integral_l;
-				integral_l = integral_l - integral_m;
 
-				if (integral_m>0) {
-					position_suby = (1000*(integral_m - (integral_l-integral_r))/2)/integral_m;
+
+
+
+				integral = 0;
+				for (y = 0; y < 32; y++) {
+					intensity_y[y] = 0;
+					for (x = 0; x < 32; x++) {
+						v = pixels.zoomed[position_inty+y-16][position_intx+x-16];
+						if (v > 40) {
+							intensity_y[y] += v;
+							integral += v;
+						}
+					}
 				}
-				else
-					position_suby = 0;
+				integral_l = 0;
+				maxy = 16;
+				for (y = 0; y < 32; y++) {
+					if ((integral_l*2) < integral) {
+						integral_l += intensity_y[y];
+						maxy = y;
+					}
+				}
+
+				maxy-=16;
+				if ((maxy >-8) && (maxy <8)) {
+					position_inty += maxy;
+					integral_m = intensity_y[maxy+16];
+					integral_r = integral - integral_l;
+					integral_l = integral_l - integral_m;
+
+					if (integral_m>0) {
+						position_suby = (1000*(integral_m - (integral_l-integral_r))/2)/integral_m;
+					}
+					else
+						position_suby = 0;
+				}
+
+				// Calculate the absolute position
+				position_x = position_intx + offset_window_x;
+				position_y = position_inty + offset_window_y;
+
+				// Check, whether the window has to move
+				x = position_x / 60 * 60 - 30;
+				if (x<0)
+					x = 0;
+				if (x > (2592-120))
+					x = (2592-120);
+				y = position_y / 60 * 60 - 30;
+				if (y<0)
+					y = 0;
+				if (y > (1944-120))
+					y = (1944-120);
+
+				// Move the window if necessary
+				if (x != offset_x || y != offset_y)
+					BSP_CAMERA_SetOffset(x,y);
+
+			} else {
+//				integral = 0;
 			}
-
-			// Calculate the absolute position
-			position_x = position_intx + offset_window_x;
-			position_y = position_inty + offset_window_y;
-
-			// Check, whether the window has to move
-			x = position_x / 60 * 60 - 30;
-			if (x<0)
-				x = 0;
-			if (x > (2592-120))
-				x = (2592-120);
-			y = position_y / 60 * 60 - 30;
-			if (y<0)
-				y = 0;
-			if (y > (1944-120))
-				y = (1944-120);
-
-			// Move the window if necessary
-			if (x != offset_x || y != offset_y)
-				BSP_CAMERA_SetOffset(x,y);
-
 		}
 		intensity = integral;
 		if (intensity < 2000 ) {

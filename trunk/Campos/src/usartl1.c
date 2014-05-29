@@ -116,10 +116,13 @@ void USARTL1_PutByte(UART_HandleTypeDef *huart, uint8_t b) {
 		huart->Instance->DR = b;
 		__HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
 	} else {
-		// Write the next character into the buffer
+
 		while (((USARTL1_tx_wr_pointer + 1) & USARTL1_TX_MASK)
 				== USARTL1_tx_rd_pointer)
 			;
+		__HAL_UART_DISABLE_IT(huart, UART_IT_TXE);
+
+		// Write the next character into the buffer
 		USARTL1_tx_wr_pointer++;
 		USARTL1_tx_wr_pointer &= USARTL1_TX_MASK;
 		if (USARTL1_tx_wr_pointer == USARTL1_tx_rd_pointer) {
@@ -128,6 +131,7 @@ void USARTL1_PutByte(UART_HandleTypeDef *huart, uint8_t b) {
 		}
 
 		USARTL1_tx_buffer[USARTL1_tx_wr_pointer] = b;
+		__HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
 	}
 }
 
