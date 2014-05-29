@@ -30,11 +30,11 @@
 
 /* Type defs -----------------------------------------------------------------*/
 typedef enum {
-	TRACK_INIT,
-	TRACK_SEARCHING,
-	TRACK_LIGHT_FOUND,
-	TRACK_CENTER_DETECTED,
-	TRACK_LOST
+	TRACK_INIT = 0,
+	TRACK_SEARCHING = 1,
+	TRACK_LIGHT_FOUND = 2,
+	TRACK_CENTER_DETECTED = 3,
+	TRACK_LOST = 4
 } Track_StatusTypeDef;
 
 /* global variables ---------------------------------------------------------*/

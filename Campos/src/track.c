@@ -24,7 +24,7 @@
 /* Includes -----------------------------------------------------------------*/
 #include "track.h"
 #include "camera.h"
-
+#include "irlink.h"
 
 /* global variables ---------------------------------------------------------*/
 int position_x = 0; 	// position in sensor pixels
