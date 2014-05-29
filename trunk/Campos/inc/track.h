@@ -33,7 +33,8 @@ typedef enum {
 	TRACK_INIT,
 	TRACK_SEARCHING,
 	TRACK_LIGHT_FOUND,
-	TRACK_CENTER_DETECTED
+	TRACK_CENTER_DETECTED,
+	TRACK_LOST
 } Track_StatusTypeDef;
 
 /* global variables ---------------------------------------------------------*/

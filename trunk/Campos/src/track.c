@@ -62,6 +62,7 @@ void TRACK_Search(void) {
 	int integral;
 	int integral_l,integral_m,integral_r;
 	int x, y, v;
+	int maxx_start,maxy_start,maxx_end,maxy_end;
 
 	if (track_status == TRACK_INIT) {
 
@@ -122,10 +123,34 @@ void TRACK_Search(void) {
 	} else {
 		integral = 0;
 
-		// Calculate the relative position
-		position_intx =  position_x - offset_window_x;
-		position_inty =  position_y - offset_window_y;
+		// Find the lightpoint in the whole 120x120 pixel area
+		maxx_start = 0;
+		maxx_end = 0;
+		maxy_start = 0;
+		maxy_end = 0;
+		max = -1;
+		for (y = 0; y < 120; y++) {
+			for (x = 0; x < 120; x++) {
+				if (pixels.zoomed[y][x] >= max) {
+					maxx_end = x;
+					maxy_end = y;
+				}
+				if (pixels.zoomed[y][x] > max) {
+					maxx_start = x;
+					maxy_start = y;
+					max = pixels.zoomed[y][x];
+				}
 
+			}
+		}
+
+
+		// Calculate center from the max start and end values
+		position_intx =  (maxx_start + maxx_end)/2;
+		position_inty =  (maxy_start + maxy_end)/2;
+
+
+		// Find the exact center
 		if (position_inty>16 && position_inty<(120-16)
 				&& position_intx>16 && position_intx<(120-16)) {
 
@@ -207,10 +232,13 @@ void TRACK_Search(void) {
 		intensity = integral;
 		if (intensity < 100 ) {
 			lost_cnt ++;
-			if (lost_cnt>100) {
+			track_status = TRACK_LOST;
+			// Timeout of 50 frames = about 5sec
+			if (lost_cnt>50) {
 				track_status = TRACK_INIT;
 			}
 		} else {
+			track_status = TRACK_CENTER_DETECTED;
 			lost_cnt = 0;
 		}
 

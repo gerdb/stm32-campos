@@ -169,8 +169,14 @@ void LCD_Image_Zoomed(uint8_t* pixelp) {
 	int x, y;
 	int v;
 
-	volatile int cursor_x = 120 - position_intx;
-	volatile int cursor_y = 2 * position_inty;
+	int cursor_x = 120 - position_intx;
+	int cursor_y = 2 * position_inty;
+
+	//Show or hide the cursor
+	if (track_status != TRACK_CENTER_DETECTED) {
+		cursor_x = -1;
+		cursor_y = -1;
+	}
 
 	// Define the region to draw
 	ili9325_SetDisplayWindow(0, 0, 240, 240);
