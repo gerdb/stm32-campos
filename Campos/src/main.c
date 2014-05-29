@@ -92,6 +92,9 @@ int main(void) {
 		case TRACK_CENTER_DETECTED:
 			LCD_Print(0, LCD_Y_TRACK_STATUS, "Center    ");
 			break;
+		case TRACK_LOST:
+			LCD_Print(0, LCD_Y_TRACK_STATUS, "Lost      ");
+			break;
 		}
 		sprintf(txt, "%04d.%03d", position_x, position_subx);
 		LCD_Print(0, LCD_Y_POSX, txt);
