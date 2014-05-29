@@ -254,7 +254,6 @@ static void USARTL1_Receive(UART_HandleTypeDef *huart) {
  */
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle) {
 	/* Turn LED3 on: Transfer error in reception/transmission process */
-	BSP_LED_On(LED3);
 }
 
 /**
@@ -267,6 +266,4 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle) {
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle) {
 	/* Set transmission flag: trasfer complete*/
 
-	/* Turn LED6 on: Transfer in transmission process is correct */
-	BSP_LED_On(LED6);
 }
