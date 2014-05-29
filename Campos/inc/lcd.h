@@ -41,14 +41,19 @@
 #define LCD_Y_POSY			7
 #define LCD_Y_INTENSITY		10
 
+#define LCD_OPAQUE 0
+#define LCD_TRANSPARENT 1
+
 /* Function prototypes -------------------------------------------------------*/
 
 void LCD_Init(void);
-void LCD_Print (int x, int y, char *);
+void LCD_Print(int x, int y, char * s, int transparent);
 void LCD_Image_Zoomed(uint8_t* pixelp);
 void LCD_Image_Total(uint8_t* pixelp);
 void LCD_FocusStatusWindow(void);
 void LCD_MiniWindow(Camera_SizeTypeDef cameraSize);
 void LCD_Clr(void);
+void LCD_Logo(void);
+void LCD_DrawInfoWindow(void);
 
 #endif /* LCD_H_ */
