@@ -82,9 +82,9 @@ void LCD_DrawInfoWindow(void) {
 
 	// Print the header texts
 	LCD_Print(35, 0, "State:", LCD_OPAQUE);
-	LCD_Print(35, 3, "X:", LCD_OPAQUE);
-	LCD_Print(35, 6, "Y:", LCD_OPAQUE);
-	LCD_Print(35, 9, "Intensity:", LCD_OPAQUE);
+	LCD_Print(35, 3, "Position:", LCD_OPAQUE);
+	LCD_Print(35, 7, "Intensity:", LCD_OPAQUE);
+	LCD_Print(35, 10, "Battery:", LCD_OPAQUE);
 }
 
 

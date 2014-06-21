@@ -61,6 +61,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "camera.h"
 #include "ov5647.h"
+#include "irlink.h"
 
 Union_PixelsType pixels; // Pixel field
 
