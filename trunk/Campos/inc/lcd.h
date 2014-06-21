@@ -38,8 +38,9 @@
 
 #define LCD_Y_TRACK_STATUS	1
 #define LCD_Y_POSX			4
-#define LCD_Y_POSY			7
-#define LCD_Y_INTENSITY		10
+#define LCD_Y_POSY			5
+#define LCD_Y_INTENSITY		8
+#define LCD_Y_BATTERY		11
 
 #define LCD_OPAQUE 0
 #define LCD_TRANSPARENT 1

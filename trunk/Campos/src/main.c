@@ -28,6 +28,7 @@
 #include "lcd.h"
 #include "track.h"
 #include "irlink.h"
+#include "power.h"
 
 /* function prototypes ------------------------------------------------------*/
 void SystemClock_Config(void);
@@ -51,6 +52,9 @@ int main(void) {
 
 	// Enable systick and configure 1ms tick
 	HAL_SYSTICK_Config(168000000/ 1000);
+
+	// Initialize the power module
+	POWER_Init();
 
 	// Initialize the LCD display
 	LCD_Init();
@@ -82,7 +86,7 @@ int main(void) {
 
 	// Startup Logo
 	LCD_Logo();
-	LCD_Print(31,14,"1.0.0",LCD_TRANSPARENT);
+	LCD_Print(31,14,"1.1.0",LCD_TRANSPARENT);
 	HAL_Delay(5000);
 	LCD_Clr();
 	LCD_DrawInfoWindow();
@@ -96,7 +100,12 @@ int main(void) {
 		if (mytick > 200) {
 			mytick = 0;
 			blink = !blink;
+
+			//200ms Task
+			POWER_Task();
 		}
+
+
 		// Debug ports
 		USARTL1_RxBufferTask();
 
@@ -152,6 +161,9 @@ int main(void) {
 
 		sprintf(txt, "%05d", intensity);
 		LCD_Print(35, LCD_Y_INTENSITY, txt, LCD_OPAQUE);
+
+		sprintf(txt, "%05d", battery);
+		LCD_Print(35, LCD_Y_BATTERY, txt, LCD_OPAQUE);
 
 		// Mini window that shows the position of the actual window
 		LCD_MiniWindow(BSP_CAMERA_GetSize());
