@@ -50,7 +50,8 @@ void IRLINK_Init(void) {
 
 	// Timer configuration
 	htim3.Instance = TIM3;
-	htim3.Init.Period = 1166 - 1; // = 36kHz = 42MHz / 1166
+	//htim3.Init.Period = 1166 - 1; // = 36kHz = 42MHz / 1166
+	htim3.Init.Period = 1105 - 1; // = 38kHz = 42MHz / 1105
 	htim3.Init.Prescaler = 1;
 	htim3.Init.ClockDivision = 1;
 	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
