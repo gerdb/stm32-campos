@@ -39,7 +39,7 @@ int header_endcnt;
 int send_data;
 int data_phase_cnt;
 int data_bit_cnt;
-int data_byte_cnt;
+int data_word_cnt;
 
 /**
  * @brief  Initialize the module and configure PWM PB5 as PWM output with 36kHz
@@ -135,7 +135,7 @@ void IRLINK_StartHeader(void) {
  * @param  None
  * @retval None
  */
-void IRLINK_1msTask(void) {
+void IRLINK_500usTask(void) {
 
 	// Header is n ms high and then one ms low.
 	if (header_cnt > 0) {
@@ -149,17 +149,17 @@ void IRLINK_1msTask(void) {
 			IRLINK_Output(0);
 		} else {
 			// Send now the data
-			if (data_byte_cnt < 4) {
+			if (data_word_cnt < 4) {
 
 				// Manchester code
 				if (data_phase_cnt == 0) {
-					if (irdata[data_byte_cnt] & 0x8000) {
+					if (irdata[data_word_cnt] & 0x8000) {
 						IRLINK_Output(1);
 					} else {
 						IRLINK_Output(0);
 					}
 				} else {
-					if (irdata[data_byte_cnt] & 0x8000) {
+					if (irdata[data_word_cnt] & 0x8000) {
 						IRLINK_Output(0);
 					} else {
 						IRLINK_Output(1);
@@ -171,14 +171,14 @@ void IRLINK_1msTask(void) {
 				if (data_phase_cnt >= 2 ) {
 
 					// Next bit
-					irdata[data_byte_cnt] <<= 1;
+					irdata[data_word_cnt] <<= 1;
 					data_phase_cnt = 0;
 					data_bit_cnt ++;
-					if (data_bit_cnt >= 8 ) {
+					if (data_bit_cnt >= 16 ) {
 
-						// Next byte
+						// Next word (16bit)
 						data_bit_cnt = 0;
-						data_byte_cnt ++;
+						data_word_cnt ++;
 					}
 				}
 			} else {
@@ -217,12 +217,12 @@ void IRLINK_Send(Track_StatusTypeDef track_status, int position_x,
 	irdata[3] = 0;
 
 	// Calculate the CRC
-	uwCRCValue = HAL_CRC_Accumulate(&CrcHandle, (uint32_t *)irdata, 4 / 2);
+	uwCRCValue = HAL_CRC_Calculate(&CrcHandle, (uint32_t *)irdata, 4 / 2);
 	irdata[3] = (uint16_t)uwCRCValue;
 
 	data_phase_cnt = 0;
 	data_bit_cnt = 0;
-	data_byte_cnt = 0;
+	data_word_cnt = 0;
 	header_endcnt = 3;
 	send_data = 1;
 }
