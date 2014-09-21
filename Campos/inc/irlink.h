@@ -34,7 +34,7 @@
 void IRLINK_Init(void);
 void IRLINK_Output(int value);
 void IRLINK_StartHeader(void);
-void IRLINK_1msTask(void);
+void IRLINK_500usTask(void);
 void IRLINK_Send(Track_StatusTypeDef track_status ,
 		int position_x, int position_subx,
 		int position_y, int position_suby,
