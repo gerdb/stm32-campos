@@ -44,14 +44,14 @@ int mytick = 0;
  */
 int main(void) {
 
-	// Configure the system clock to 168 Mhz
+	// Configure the system clock to 168 MHz
 	SystemClock_Config();
 
 	// Initialize the hardware layer module
 	HAL_Init();
 
-	// Enable systick and configure 1ms tick
-	HAL_SYSTICK_Config(168000000/ 1000);
+	// Enable systick and configure 500us tick
+	HAL_SYSTICK_Config(168000000/ 2000);
 
 	// Initialize the power module
 	POWER_Init();
@@ -86,7 +86,7 @@ int main(void) {
 
 	// Startup Logo
 	LCD_Logo();
-	LCD_Print(31,14,"1.2.0",LCD_TRANSPARENT);
+	LCD_Print(31,14,"1.3.0",LCD_TRANSPARENT);
 	HAL_Delay(5000);
 	LCD_Clr();
 	LCD_DrawInfoWindow();

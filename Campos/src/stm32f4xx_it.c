@@ -167,9 +167,18 @@ void PendSV_Handler(void) {
  * @retval None
  */
 void SysTick_Handler(void) {
-	IRLINK_1msTask();
-	HAL_IncTick();
-	mytick ++;
+	static int cnt1ms = 0;
+	IRLINK_500usTask();
+	cnt1ms++;
+
+	// Generate a 1ms Task
+	if (cnt1ms >= 2) {
+		cnt1ms = 0;
+
+		HAL_IncTick();
+		mytick ++;
+	}
+
 }
 /**
  * @brief  DMA interrupt handler.
