@@ -29,6 +29,8 @@
 // The result of the analog to digital conversion
 __IO uint16_t ADCConvertedValue[1] = { 0 };
 int battery = 0;
+int batteryFilt = 0;
+int batteryFiltL = 0;
 
 // Debounce the power key
 int power_key_cnt = 2;
@@ -154,9 +156,19 @@ void POWER_Task(void) {
 	}
 
 	// Switch off by low voltage
-	if (low_voltage_cnt > 10) {
+	if (low_voltage_cnt > 100) {
 		HAL_GPIO_WritePin(POWER_GPIO_PORT, POWER_HOLD_PIN, GPIO_PIN_RESET);
 	}
+
+	// Init the filter
+	if (batteryFilt == 0) {
+		batteryFilt = battery;
+		batteryFiltL = batteryFilt * 256;
+	}
+
+	// Filter the battery voltage
+	batteryFiltL += battery - batteryFilt;
+	batteryFilt = batteryFiltL / 256;
 }
 
 /**

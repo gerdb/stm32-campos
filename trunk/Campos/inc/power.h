@@ -32,7 +32,7 @@
 
 /* Exported variables -------------------------------------------------------*/
 extern int battery;
-
+extern int batteryFilt;
 
 /* Defines -------------------------------------------------------*/
 #define POWER_GPIO_CLK_ENABLE()  __GPIOD_CLK_ENABLE()
