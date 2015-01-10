@@ -86,7 +86,7 @@ int main(void) {
 
 	// Startup Logo
 	LCD_Logo();
-	LCD_Print(31,14,"1.3.0",LCD_TRANSPARENT);
+	LCD_Print(31,14,"1.4.0",LCD_TRANSPARENT);
 	HAL_Delay(5000);
 	LCD_Clr();
 	LCD_DrawInfoWindow();
@@ -162,7 +162,7 @@ int main(void) {
 		sprintf(txt, "%05d", intensity);
 		LCD_Print(35, LCD_Y_INTENSITY, txt, LCD_OPAQUE);
 
-		sprintf(txt, "%05d", battery);
+		sprintf(txt, "%05d", batteryFilt);
 		LCD_Print(35, LCD_Y_BATTERY, txt, LCD_OPAQUE);
 
 		// Mini window that shows the position of the actual window
