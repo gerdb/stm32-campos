@@ -96,6 +96,7 @@ void TRACK_Search(void) {
 
 		// A light point was found when the complete camera field was scanned
 		if ((window_x == 2) && (window_y == 17)) {
+//			if (0) {
 			if (max > 128) {
 				position_x = maxx;
 				position_y = maxy;
