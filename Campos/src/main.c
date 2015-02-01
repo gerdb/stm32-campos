@@ -86,7 +86,7 @@ int main(void) {
 
 	// Startup Logo
 	LCD_Logo();
-	LCD_Print(31,14,"1.4.0",LCD_TRANSPARENT);
+	LCD_Print(31,14,"1.4.1",LCD_TRANSPARENT);
 	HAL_Delay(5000);
 	LCD_Clr();
 	LCD_DrawInfoWindow();

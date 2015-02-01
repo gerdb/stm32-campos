@@ -107,9 +107,13 @@ static struct regval_list ov5647_regs[] = {
 						  // Bit[0]: AEC manual
 						  // 0: Auto enable
 						  // 1: Manual enable
+
+
 		{ 0x3500, 0x00 }, // Bit[3:0]: Exposure[19:16]
-		{ 0x3501, 0x00 }, // Bit[7:0]: Exposure[15:8]
+		{ 0x3501, 0x10 }, // Bit[7:0]: Exposure[15:8]
 		{ 0x3502, 0x08 }, // Bit[7:0]: Exposure[7:0]
+
+
 		{ 0x350a, 0x00 }, // Bit[1:0]: Gain[9:8] AGC real gain output high byte
 		{ 0x350b, 0x7f }, // Bit[7:0]: Gain[7:0] AGC real gain output low byte
 		{ 0x350c, 0x00 }, // vts diff manual vts set to 0
